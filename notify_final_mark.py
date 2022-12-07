@@ -99,15 +99,20 @@ def revisar_nota(userName: str, password: str, subject_code: str) -> Optional[st
                     return span_nota
 
 codigo_materia = "22.21"
+give_me_a_heart_attack = False
 
 while (nota := revisar_nota(userName=userName, password=password, subject_code=codigo_materia)) is None:
     sleep(900)
 
-print("Felicitaciones/Lo siento! Tu nota es un", nota)
+if give_me_a_heart_attack:
+    my_message = f"Tu nota de {codigo_materia} es {nota}!!"
+else:
+    my_message = f"Tu nota de {codigo_materia} es..."
+    print("Felicitaciones/Lo siento! Tu nota es un", nota)
 
 notification.notify(
     title = 'Está la nota!',
-    message = f"Tu nota de {codigo_materia} es...",
+    message = my_message,
     app_name= 'SGA Notafire',
     app_icon = "D:\VSCodeRepos\Web_Scraping\icon.ico",
     timeout = 90000,
