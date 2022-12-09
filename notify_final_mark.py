@@ -13,7 +13,7 @@ from email.message import EmailMessage
 import ssl
 import smtplib
 # Credential Imports
-from creds import userName, password, email_sender, email_password, email_reciever
+from creds import email_sender, email_password
 
 def check_mark(userName: str, password: str, subject_code: str) -> Optional[str]:
 
@@ -106,11 +106,12 @@ def check_mark(userName: str, password: str, subject_code: str) -> Optional[str]
                     span_nota = td_nota.find('div').find('span').string
                     return span_nota
 
-def send_email(sender: str, password: str, reciever: str, subject_code: str):
+def send_email(sender: str, password: str, reciever: str, subject_code: str, give_me_a_heart_attack: bool, mark=None):
     subject = f"Nota de final - Materia {subject_code}"
-    body = """
-    ¡Tu nota del final está disponible!
-    """
+    if give_me_a_heart_attack and (mark is not None):
+        body = f"Felicitaciones/Lo siento! Tu nota es un {mark}!!"
+    else:
+        body = "¡Tu nota del final está disponible!"
 
     em = EmailMessage()
     em['From'] = sender
@@ -124,9 +125,9 @@ def send_email(sender: str, password: str, reciever: str, subject_code: str):
         smtp.login(user=sender, password=password)
         smtp.sendmail(from_addr=sender, to_addrs=reciever, msg=em.as_string())
 
-def desktop_notify(mark: str, subject_code: str, give_me_a_heart_attack=False):
+def desktop_notify(mark: str, subject_code: str, give_me_a_heart_attack: bool):
     if give_me_a_heart_attack:
-        my_message = f"Tu nota de {subject_code} es {mark}!!"
+        my_message = f"Felicitaciones/Lo siento! Tu nota de {subject_code} es {mark}!!"
     else:
         my_message = f"Tu nota de {subject_code} es..."
         print("Felicitaciones/Lo siento! Tu nota es un", mark)
@@ -141,10 +142,16 @@ def desktop_notify(mark: str, subject_code: str, give_me_a_heart_attack=False):
     )
 
 
-codigo_materia = "22.21"
+userName = str(input("Usuario ITBA: ")).lower()
+email_reciever = userName + "@itba.edu.ar"
+password = str(input("Contraseña: "))
+codigo_materia = str(input("Código de la materia a monitorear: "))
+is_user_nuts = True if (str(input("¿Querés que la nota aparezca en la notificación? (y/n): ")).lower() == 'y') else False
+
+print("Serás notificade cuando esté la nota. Suerte! :D\n")
 
 while (nota := check_mark(userName=userName, password=password, subject_code=codigo_materia)) is None:
     sleep(900)
 
-send_email(sender=email_sender, password=email_password, reciever=email_reciever, subject_code=codigo_materia)
-desktop_notify(mark=nota, subject_code=codigo_materia, give_me_a_heart_attack=False)
+send_email(sender=email_sender, password=email_password, reciever=email_reciever, subject_code=codigo_materia, give_me_a_heart_attack=is_user_nuts, mark=nota)
+desktop_notify(mark=nota, subject_code=codigo_materia, give_me_a_heart_attack=is_user_nuts)
