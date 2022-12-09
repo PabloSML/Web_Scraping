@@ -132,11 +132,12 @@ def desktop_notify(mark: str, subject_code: str, give_me_a_heart_attack: bool):
         my_message = f"Tu nota de {subject_code} es..."
         print("Felicitaciones/Lo siento! Tu nota es un", mark)
 
+    print("\nYa podés cerrar el programa.")
     notification.notify(
         title = 'Está la nota!',
         message = my_message,
         app_name= 'SGA Notafire',
-        app_icon = "D:\VSCodeRepos\Web_Scraping\icon.ico",
+        # app_icon = "D:\VSCodeRepos\Web_Scraping\icon.ico",
         timeout = 90000,
         toast=False
     )
