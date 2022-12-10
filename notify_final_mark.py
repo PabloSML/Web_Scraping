@@ -8,6 +8,7 @@ from bs4 import BeautifulSoup as soup #parses/cuts  the html
 from urllib.parse import urljoin
 # Desktop Notification Imports
 from plyer import notification
+# --hidden-import plyer.platforms.win.notification para pyinstaller
 # Email Notification Imports
 from email.message import EmailMessage
 import ssl
@@ -15,7 +16,7 @@ import smtplib
 # Credential Imports
 from creds import email_sender, email_password
 
-def check_mark(userName: str, password: str, subject_code: str) -> Optional[str]:
+def check_mark(userName: str, password: str, subject_code: str, mark_type:str) -> Optional[str]:
 
     with requests.Session() as s:
 
@@ -99,12 +100,19 @@ def check_mark(userName: str, password: str, subject_code: str) -> Optional[str]
             if namespan is None:
                 continue
             if namespan.string.startswith(subject_code):
-                td_nota = tds[3].find('div')
-                if td_nota is None:
-                    return None
-                else:
-                    span_nota = td_nota.find('div').find('span').string
-                    return span_nota
+                if mark_type == "FINAL":
+                    td_nota = tds[3].find('div')
+                    if td_nota is None:
+                        return None
+                    else:
+                        span_nota = td_nota.find('div').find('span').string
+                        return span_nota
+                elif mark_type == "CURSADA":
+                    span_nota = tds[2].find('span').find('span').string
+                    if span_nota == "Cursando":
+                        return None
+                    else:
+                        return span_nota
 
 def send_email(sender: str, password: str, reciever: str, subject_code: str, give_me_a_heart_attack: bool, mark=None):
     subject = f"Nota de final - Materia {subject_code}"
@@ -147,11 +155,12 @@ userName = str(input("Usuario ITBA: ")).lower()
 email_reciever = userName + "@itba.edu.ar"
 password = str(input("Contraseña: "))
 codigo_materia = str(input("Código de la materia a monitorear: "))
+tipo_de_nota = "CURSADA" if (str(input("¿Nota de final o de cursada? (f/c): ")).lower() == 'c') else "FINAL"
 is_user_nuts = True if (str(input("¿Querés que la nota aparezca en la notificación? (y/n): ")).lower() == 'y') else False
 
 print("Serás notificade cuando esté la nota. Suerte! :D\n")
 
-while (nota := check_mark(userName=userName, password=password, subject_code=codigo_materia)) is None:
+while (nota := check_mark(userName=userName, password=password, subject_code=codigo_materia, mark_type=tipo_de_nota)) is None:
     sleep(900)
 
 send_email(sender=email_sender, password=email_password, reciever=email_reciever, subject_code=codigo_materia, give_me_a_heart_attack=is_user_nuts, mark=nota)
