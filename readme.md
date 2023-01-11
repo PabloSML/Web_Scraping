@@ -1,1 +1,2 @@
-# Web Scraping Repo for Personal Use
+# Grade NotaFire
+Web scraper designed to notify users of updates on university grades.
